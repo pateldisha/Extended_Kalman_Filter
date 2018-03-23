@@ -78,7 +78,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 	  float r     = measurement_pack.raw_measurements_[0];
       float phi    = measurement_pack.raw_measurements_[1];
       float r_dot = measurement_pack.raw_measurements_[2];
-	 
+	  
+   /*   ekf_.x_(0) = r * cos(phi);
+	  ekf_.x_(1) = r * sin(phi);
+	  ekf_.x_(2) = r_dot * cos(phi);
+	  ekf_.x_(3) = r_dot * sin(phi);*/
 	  ekf_.x_ << r * cos(phi), r * sin(phi), r_dot * cos(phi), r_dot * sin(phi);
 	  
     }
@@ -114,7 +118,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 			  0, 1, 0, 1,
 			  0, 0, 1, 0,
 			  0, 0, 0, 1;		
-  //compute the time between the current and previous measurement
+  //compute the time elapsed between the current and previous measurements
   float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;	
   previous_timestamp_ = measurement_pack.timestamp_;
 
@@ -129,7 +133,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   float noise_ax = 9;
   float noise_ay = 9;
 
-  // Compute process covariance matrix Q
+  // Computer process covariance matrix Q
   ekf_.Q_ = MatrixXd(4, 4);
   ekf_.Q_ <<  dt_4/4*noise_ax, 0, dt_3/2*noise_ax, 0,
 			   0, dt_4/4*noise_ay, 0, dt_3/2*noise_ay,
@@ -154,12 +158,14 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates
-
-	Tools tools;
 	
-	// Call Function to calculate Jacobian Matrix
+	// Call Funcion to calculate Jacobian Matrix
     Hj_ = tools.CalculateJacobian(ekf_.x_);
+	
+	//Measurement Matrix
     ekf_.H_ = Hj_;
+    
+	// Measurement Covariance Matrix
 	ekf_.R_ = R_radar_;
 	
 	// Extended Kalman Filter Update
