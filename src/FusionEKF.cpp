@@ -79,10 +79,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float phi    = measurement_pack.raw_measurements_[1];
       float r_dot = measurement_pack.raw_measurements_[2];
 	  
-   /*   ekf_.x_(0) = r * cos(phi);
-	  ekf_.x_(1) = r * sin(phi);
-	  ekf_.x_(2) = r_dot * cos(phi);
-	  ekf_.x_(3) = r_dot * sin(phi);*/
 	  ekf_.x_ << r * cos(phi), r * sin(phi), r_dot * cos(phi), r_dot * sin(phi);
 	  
     }
